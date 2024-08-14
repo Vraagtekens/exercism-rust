@@ -1,5 +1,3 @@
-[dependencies]
-graphene = "0.1.5"
 
 [features]
 grapheme = []
@@ -8,3 +6,6 @@ grapheme = []
 edition = "2021"
 name = "reverse_string"
 version = "1.2.0"
+
+[dependencies]
+unicode-segmentation = "1.11.0"
