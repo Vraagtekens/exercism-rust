@@ -1,1 +1,3 @@
 exercism submit src/lib.rs Cargo.toml 
+cargo test -- --ignored
+⌘ + d
