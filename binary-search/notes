@@ -1,0 +1,19 @@
+Keys: Yes, you're correct that the keys must implement the Ord trait. This is necessary because binary search relies on being able to compare elements to determine if we need to search the left or right half of the array.
+Arrays: It's slightly different for the arrays. The constraint A: AsRef<[T]> means that the array type A must be able to provide a reference to a slice of T. The Ord trait requirement actually comes from T, not directly from A.
+
+To break it down further:
+
+T: Ord means that the type T (which is the type of elements in the array and the key) must implement the Ord trait.
+A: AsRef<[T]> means that A can be treated as a reference to a slice of T.
+
+So, more precisely:
+
+The elements in the array must be of a type that implements Ord.
+The key must be of the same type as the elements in the array (and thus also implements Ord).
+The array itself doesn't need to implement Ord, but it needs to be a type that can be viewed as a slice of Ord-implementing elements.
+
+This design allows for flexibility. For example:
+
+You could use it with an array of integers: find(&[1, 2, 3], 2)
+You could use it with a vector of strings: find(vec!["a", "b", "c"], "b")
+You could even use it with custom types, as long as those types implement Ord
