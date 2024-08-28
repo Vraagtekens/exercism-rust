@@ -37,45 +37,36 @@ fn finds_a_value_in_an_array_of_even_length() {
 }
 
 #[test]
-#[ignore]
 fn identifies_that_a_value_is_not_included_in_the_array() {
     assert_eq!(find(&[1, 3, 4, 6, 8, 9, 11], 7), None);
 }
 
 #[test]
-#[ignore]
 fn a_value_smaller_than_the_array_s_smallest_value_is_not_found() {
     assert_eq!(find(&[1, 3, 4, 6, 8, 9, 11], 0), None);
 }
 
 #[test]
-#[ignore]
 fn a_value_larger_than_the_array_s_largest_value_is_not_found() {
     assert_eq!(find(&[1, 3, 4, 6, 8, 9, 11], 13), None);
 }
 
 #[test]
-#[ignore]
 fn nothing_is_found_in_an_empty_array() {
     assert_eq!(find(&[], 1), None);
 }
 
 #[test]
-#[ignore]
 fn nothing_is_found_when_the_left_and_right_bounds_cross() {
     assert_eq!(find(&[1, 2], 0), None);
 }
 
 #[test]
-#[ignore]
-#[cfg(feature = "generic")]
 fn works_for_arrays() {
     assert_eq!(find([6], 6), Some(0));
 }
 
 #[test]
-#[ignore]
-#[cfg(feature = "generic")]
 fn works_for_vec() {
     let vector = vec![6];
     assert_eq!(find(&vector, 6), Some(0));
@@ -83,8 +74,6 @@ fn works_for_vec() {
 }
 
 #[test]
-#[ignore]
-#[cfg(feature = "generic")]
 fn works_for_str_elements() {
     assert_eq!(find(["a"], "a"), Some(0));
     assert_eq!(find(["a", "b"], "b"), Some(1));

@@ -1,44 +1,36 @@
-pub fn find(array: &[i32], key: i32) -> Option<usize> {
-    
-    // array.iter().map(|x| {
-    //     if x > &key {
+use std::cmp::Ordering;
 
-    //     }
-    // });
+pub fn find<T, A>(array: A, key: T) -> Option<usize> 
+where
+    T: Ord,
+    A: AsRef<[T]>,
+{
+    let array = array.as_ref();
+    if array.is_empty() {
+        return None;
+    }
 
-    let mut length = array.len() / 2;
-    let mut count = 0;
-    // println!("{:?}", length);
+    let mut low = 0;
+    let mut high = array.len() - 1;
 
-    loop {
-        if array[length] == key{
-            break Some(length);
-        }
-        if length == 1{
-            break Some(0);
-        }
-
-        // if len % 2 == 0 {
-        //     // Even length: average of two middle elements
-        //     (numbers[mid - 1] as f32 + numbers[mid] as f32) / 2.0
-        // }
-
-        // let (left, right) = array.split_at(length);
-        // println!("{:?}", length);
-        // println!("{:?}", right);
-        // println!("{:?}", left);
-        if array[length] > key {
-            println!("{:?}", length);
-            length = length - length / 2;
-        } else if array[length] < key{
-            length = length + length / 2;
-        } else {
-            break None;
-        }
-
-        count+= 1;
-        if count > array.len(){
-            break None;
+    while low <= high {
+        let mid = low + (high - low) / 2;
+        match array[mid].cmp(&key) {
+            Ordering::Equal => return Some(mid),
+            Ordering::Less => low = mid + 1,
+            Ordering::Greater => {
+                if mid == 0 {
+                    break;
+                }
+                high = mid - 1;
+            }
         }
     }
+
+    None
+
+    // match array.binary_search(&key) {
+    //     Ok(t) => Some(t),
+    //     Err(_) => None
+    // }
 }
