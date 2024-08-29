@@ -3,41 +3,55 @@ const NAMES: [&str; 12] = ["Alice", "Bob", "Charlie", "David", "Eve", "Fred", "G
 
 pub fn plants(diagram: &str, student: &str) -> Vec<&'static str> {
 
-    let x: Vec<&str> = diagram.split("\n").collect();
-    let mut list = Vec::new();
-    let index = NAMES.into_iter().position(|x| x == student).unwrap();
-    let i = match student {
-        "Alice" => 0,
-        "Bob" => 2, 
-        "Charlie" => 4, 
-        "David" => 6, 
-        "Eve" => 8, 
-        "Fred" => 10, 
-        "Ginny" => 12, 
-        "Harriet" => 14, 
-        "Ileana" => 16, 
-        "Joseph" => 18, 
-        "Kincaid" => 20, 
-        "Larry" => 22,
-        _ => 0
-    };
-
-    println!("{:?}", x);
-
-    for sentence in x {
-        let z: Vec<_> = sentence.trim().chars().map(|x| {
-            match x {
+    let cup_idx = NAMES.iter().position(|&s| s == student).unwrap() * 2;
+    diagram
+        .lines()
+        .flat_map(|line| {
+            line[cup_idx..=cup_idx + 1].chars().map(|cup| match cup {
                 'G' => "grass",
                 'C' => "clover",
                 'R' => "radishes",
                 'V' => "violets",
-                _ => ""
-            }
-        }).collect();
+                _ => "grass"
+            })
+        })
+        .collect()
 
-        list.push(z[i]);
-        list.push(z[i + 1]);
-    }
+    // let x: Vec<&str> = diagram.split("\n").collect();
+    // let mut list = Vec::new();
+    // let index = NAMES.into_iter().position(|x| x == student).unwrap();
+    // let i = match student {
+    //     "Alice" => 0,
+    //     "Bob" => 2, 
+    //     "Charlie" => 4, 
+    //     "David" => 6, 
+    //     "Eve" => 8, 
+    //     "Fred" => 10, 
+    //     "Ginny" => 12, 
+    //     "Harriet" => 14, 
+    //     "Ileana" => 16, 
+    //     "Joseph" => 18, 
+    //     "Kincaid" => 20, 
+    //     "Larry" => 22,
+    //     _ => 0
+    // };
 
-    list
+    // println!("{:?}", x);
+
+    // for sentence in x {
+    //     let z: Vec<_> = sentence.trim().chars().map(|x| {
+    //         match x {
+    //             'G' => "grass",
+    //             'C' => "clover",
+    //             'R' => "radishes",
+    //             'V' => "violets",
+    //             _ => ""
+    //         }
+    //     }).collect();
+
+    //     list.push(z[i]);
+    //     list.push(z[i + 1]);
+    // }
+
+    // list
 }
