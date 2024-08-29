@@ -14,22 +14,10 @@ pub struct Queen{
 
 impl ChessPosition {
     pub fn new(rank: i32, file: i32) -> Option<Self> {
-        // todo!(
-        //     "Construct a ChessPosition struct, given the following rank, file: ({rank}, {file}). If the position is invalid return None."
-        // );
-        // if rank != file{
-        //     return None;
+        // match (rank, file) {
+        //     (0..=7, 0..=7) => Some(Self { rank, file }),
+        //     _ => None,
         // }
-
-        // let mut vec = Vec::new();
-        // for x in 0..rank{
-        //     let char = ('a' as u8 + x as u8) as char;
-        //     vec.push(char);
-        // }
-
-        // Some(ChessPosition{
-        //     array: vec
-        // })
 
         if rank < 0 || file < 0 || rank > 7 || file > 7{
             return  None;
