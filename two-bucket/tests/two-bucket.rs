@@ -68,7 +68,6 @@ fn measure_using_bucket_one_of_size_2_and_bucket_two_of_size_3_start_with_bucket
 }
 
 #[test]
-#[ignore]
 fn not_possible_to_reach_the_goal() {
     let output = solve(6, 15, 5, &Bucket::One);
     let expected = None;
@@ -76,7 +75,6 @@ fn not_possible_to_reach_the_goal() {
 }
 
 #[test]
-#[ignore]
 fn with_the_same_buckets_but_a_different_goal_then_it_is_possible() {
     let output = solve(6, 15, 9, &Bucket::One);
     let expected = Some(BucketStats {
@@ -88,7 +86,6 @@ fn with_the_same_buckets_but_a_different_goal_then_it_is_possible() {
 }
 
 #[test]
-#[ignore]
 fn goal_larger_than_both_buckets_is_impossible() {
     let output = solve(5, 7, 8, &Bucket::One);
     let expected = None;

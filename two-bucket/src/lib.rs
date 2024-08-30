@@ -25,38 +25,43 @@ pub fn solve(
     start_bucket: &Bucket,
 ) -> Option<BucketStats> {
 
-    let mut moves: u8 = 0;
-    let first = match start_bucket {
-        Bucket::One => capacity_1,
-        Bucket::Two => capacity_2,
+    let (mut first, first_cap, mut second, second_cap) = match start_bucket {
+        Bucket::One => (capacity_1, capacity_1, 0, capacity_2),
+        Bucket::Two => (capacity_2, capacity_2, 0, capacity_1)
     };
-    let second = match start_bucket {
-        Bucket::One => capacity_2,
-        Bucket::Two => capacity_1,
-    };
-    let mut bucket_1 = 0;
-    let mut bucket_2 = 0;
-    while goal != bucket_1 {
-        moves += 1;
-
-        if bucket_2 == second{
-            bucket_2 = 0
-        } else if bucket_1 == 0 {
-            bucket_1 = first
+    let mut moves: u8 = 1;
+    let init_first = first;
+    let init_second = second;
+    
+    while first != goal && second != goal {
+        if second_cap == goal {
+            second = second_cap;
+        } else if first == 0 {
+            first = first_cap;
+        } else if second == second_cap {
+            second = 0;
+        } else if first > second_cap - second {
+            first -= second_cap - second;
+            second = second_cap;
         } else {
-            let transfer_amount = bucket_1.min(second - bucket_2);
-            bucket_1 -= transfer_amount;
-            bucket_2 += transfer_amount;
+            second += first;
+            first = 0;
         }
-
-        println!("{}", bucket_1);
-        println!("{}\n", bucket_2);
-        
-    }
-
-    Some(BucketStats{
-        moves: moves,
-        goal_bucket: start_bucket.clone(),
-        other_bucket: bucket_2
+        moves += 1;
+        if first == init_first && second == init_second {
+            return None;
+        }
+    };
+    let (goal_bucket, other_bucket) = match *start_bucket {
+        Bucket::One if first == goal => (Bucket::One, second),
+        Bucket::One                  => (Bucket::Two, first),
+        Bucket::Two if first == goal => (Bucket::Two, second),
+        Bucket::Two                  => (Bucket::One, first)
+    };
+    Some(BucketStats {
+        moves,
+        goal_bucket,
+        other_bucket
     })
+    
 }
