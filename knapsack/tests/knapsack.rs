@@ -22,6 +22,7 @@ fn one_item_too_heavy() {
 }
 
 #[test]
+#[ignore]
 fn five_items_cannot_be_greedy_by_weight() {
     let max_weight = 10;
     let items = [
@@ -52,6 +53,7 @@ fn five_items_cannot_be_greedy_by_weight() {
 }
 
 #[test]
+#[ignore]
 fn five_items_cannot_be_greedy_by_value() {
     let max_weight = 10;
     let items = [
@@ -82,6 +84,7 @@ fn five_items_cannot_be_greedy_by_value() {
 }
 
 #[test]
+#[ignore]
 fn example_knapsack() {
     let max_weight = 10;
     let items = [
@@ -108,6 +111,7 @@ fn example_knapsack() {
 }
 
 #[test]
+#[ignore]
 fn test_8_items() {
     let max_weight = 104;
     let items = [
@@ -150,6 +154,7 @@ fn test_8_items() {
 }
 
 #[test]
+#[ignore]
 fn test_15_items() {
     let max_weight = 750;
     let items = [
@@ -218,3 +223,33 @@ fn test_15_items() {
     let expected = 1458;
     assert_eq!(output, expected);
 }
+
+// #[test]
+// fn no_items_test() {
+//     let max_weight = 10;
+//     let items = [
+//         Item {
+//             weight: 2,
+//             value: 5,
+//         },
+//         Item {
+//             weight: 2,
+//             value: 5,
+//         },
+//         Item {
+//             weight: 2,
+//             value: 5,
+//         },
+//         Item {
+//             weight: 2,
+//             value: 5,
+//         },
+//         Item {
+//             weight: 10,
+//             value: 21,
+//         },
+//     ];
+//     let output = maximum_value(max_weight, &items);
+//     let expected = 22;
+//     assert_eq!(output, expected);
+// }

@@ -5,6 +5,24 @@ pub struct Item {
 }
 
 pub fn maximum_value(max_weight: u32, items: &[Item]) -> u32 {
+    //no items, no value
+    let Some(next_item) = items.first() else {
+        return 0;
+    };
+
+    let value_without_item = maximum_value(max_weight, &items[1..]);
+    
+    //too heavy, get the max value without this item
+    if next_item.weight > max_weight {
+        return value_without_item;
+    }
+    //return the highest value if we include or exclude the item
+    let value_with_item = next_item.value + maximum_value(max_weight - next_item.weight, &items[1..]);
+    
+    value_without_item.max(value_with_item)
+}
+
+pub fn maximum_value2(max_weight: u32, items: &[Item]) -> u32 {
     let all_subsets = generate_subsets(items, 0);
     let mut total_arr: Vec<Item> = all_subsets
         .iter()
@@ -31,10 +49,7 @@ pub fn maximum_value(max_weight: u32, items: &[Item]) -> u32 {
         .find(|item| item.weight <= max_weight)
         .map(|item| item.value);
 
-    match result {
-        Some(value) => value,
-        None => 0,
-    }
+    result.unwrap_or(0)
 }
 
 // fn generate_subsets(arr: &[Item], current: Vec<Item>, index: usize) {
