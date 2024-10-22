@@ -11,7 +11,6 @@ impl<T> Matcher<T> {
     }
 }
 
-/// A Fizzy is a set of matchers, which may be applied to an iterator.
 ///
 /// Strictly speaking, it's usually more idiomatic to use `iter.map()` than to
 /// consume an iterator with an `apply` method. Given a Fizzy instance, it's
@@ -24,8 +23,7 @@ pub struct Fizzy<T>(std::marker::PhantomData<T>);
 
 impl<T> Fizzy<T> {
     pub fn new() -> Self {
-        todo!()
-        // return Self {}
+        return Self(std::marker::PhantomData);
     }
 
     // feel free to change the signature to `mut self` if you like
@@ -35,16 +33,19 @@ impl<T> Fizzy<T> {
     }
 
     /// map this fizzy onto every element of an iterator, returning a new iterator
-    pub fn apply<I>(self, _iter: I) -> impl Iterator<Item = String> {
+    pub fn apply<I: Iterator>(self, _iter: I) -> impl Iterator<Item = String> {
         // todo!() doesn't actually work, here; () is not an Iterator
         // that said, this is probably not the actual implementation you desire
+        //
+        let mut arr: Vec<String> = vec![];
+
+        _iter.for_each(|num| match num.into() {});
+
         Vec::new().into_iter()
     }
 }
 
 /// convenience function: return a Fizzy which applies the standard fizz-buzz rules
 pub fn fizz_buzz<T>() -> Fizzy<T> {
-    todo!()
-
-    // Fizzy::new()
+    Fizzy::new()
 }
