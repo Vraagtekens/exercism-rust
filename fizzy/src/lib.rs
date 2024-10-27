@@ -1,6 +1,8 @@
 // the PhantomData instances in this file are just to stop compiler complaints
 // about missing generics; feel free to remove them
 
+use std::fmt::Display;
+
 /// A Matcher is a single rule of fizzbuzz: given a function on T, should
 /// a word be substituted in? If yes, which word?
 pub struct Matcher<T>(std::marker::PhantomData<T>);
@@ -32,16 +34,24 @@ impl<T> Fizzy<T> {
         todo!()
     }
 
-    /// map this fizzy onto every element of an iterator, returning a new iterator
-    pub fn apply<I: Iterator>(self, _iter: I) -> impl Iterator<Item = String> {
-        // todo!() doesn't actually work, here; () is not an Iterator
-        // that said, this is probably not the actual implementation you desire
-        //
-        let mut arr: Vec<String> = vec![];
+    pub fn apply<I>(self, iter: I) -> impl Iterator<Item = String>
+    where
+        I: Iterator,
+        I::Item: Into<i32> + Display + Copy,
+    {
+        iter.map(|x| {
+            let num: i32 = x.into();
 
-        _iter.for_each(|num| match num.into() {});
-
-        Vec::new().into_iter()
+            if num % 3 == 0 && num % 5 == 0 {
+                "fizzbuzz".to_string()
+            } else if num % 3 == 0 {
+                "fizz".to_string()
+            } else if num % 5 == 0 {
+                "buzz".to_string()
+            } else {
+                x.to_string()
+            }
+        })
     }
 }
 
