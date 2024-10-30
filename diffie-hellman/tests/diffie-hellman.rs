@@ -83,7 +83,6 @@ fn public_key_correct_biggest_numbers() {
 }
 
 #[test]
-#[ignore]
 #[cfg(feature = "big-primes")]
 fn secret_key_correct_biggest_numbers() {
     let private_key_b = 0xEFFF_FFFF_FFFF_FFC0;
@@ -104,7 +103,6 @@ fn secret_key_correct_biggest_numbers() {
 }
 
 #[test]
-#[ignore]
 #[cfg(feature = "big-primes")]
 fn changed_secret_key_biggest_numbers() {
     let private_key_a = private_key(PRIME_64BIT_1);
