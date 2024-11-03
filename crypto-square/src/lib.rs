@@ -10,14 +10,38 @@ pub fn encrypt(input: &str) -> String {
     let mut c = 0;
     while !(r * c >= x.len() && c >= r && c - r <= 1) {
         if r == c {
-            c += 1;
-        } else {
             r += 1;
+        } else {
+            c += 1;
         }
     }
 
-    println!("{:?}", r);
-    println!("{:?}", c);
+    // println!("{:?}", r);
+    // println!("{:?}", c);
 
-    x
+    if x.len() == 0 {
+        return x;
+    }
+
+    let e = x.clone();
+    let e: Vec<String> = e
+        .chars()
+        .collect::<Vec<_>>()
+        .chunks(r)
+        .map(|chunk| chunk.iter().collect())
+        .collect();
+
+    let mut meow: Vec<String> = vec![];
+    for i in 0..c {
+        println!("{:?}", i);
+        let mut string = String::new();
+        for word in e.clone() {
+            let c = word.chars().nth(i).unwrap_or(' ');
+            string.push(c);
+        }
+
+        meow.push(string);
+    }
+
+    meow.join(" ")
 }
