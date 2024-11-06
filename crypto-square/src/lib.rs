@@ -19,7 +19,7 @@ pub fn encrypt(input: &str) -> String {
     // println!("{:?}", r);
     // println!("{:?}", c);
 
-    if x.len() == 0 {
+    if x.is_empty() {
         return x;
     }
 
