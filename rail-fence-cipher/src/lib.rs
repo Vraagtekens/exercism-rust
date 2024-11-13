@@ -14,7 +14,7 @@ impl RailFence {
         let mut vec: Vec<Vec<char>> = vec![];
 
         for (i, c) in text.chars().enumerate() {
-            // ok morgen...
+            // ok morgen....
         }
 
         "".to_string()
