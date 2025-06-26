@@ -1,50 +1,70 @@
+use itertools::Itertools;
 use std::collections::HashMap;
 
 pub fn solve(input: &str) -> Option<HashMap<char, u8>> {
-    let mut letters: Vec<char> = input
+    let input_map = input
+        .to_ascii_uppercase()
         .chars()
         .filter(|c| c.is_ascii_alphabetic())
-        .collect::<Vec<char>>();
-    letters.sort();
-    letters.dedup();
-    
-    let equation: Vec<&str> = input.split("==").collect();
-    let left_side: Vec<&str> = equation[0].split('+').map(|s| s.trim()).collect();
-    let right_side = equation[1].trim();
+        .map(|f| (f, 0))
+        .collect::<HashMap<char, u8>>();
 
-    let mut digits: Vec<u8> = (0..10).collect();
-    permute(&mut digits, 0, &letters, &left_side, right_side)
-}
+    let mut x = input.split("==");
 
-fn permute(digits: &mut Vec<u8>, start: usize, letters: &[char], left_side: &[&str], right_side: &str) -> Option<HashMap<char, u8>> {
-    if start == letters.len() {
-        let mapping: HashMap<char, u8> = letters.iter().cloned().zip(digits[..letters.len()].iter().cloned()).collect();
-        
-        // Check if any word starts with a letter mapped to 0
-        if mapping.iter().any(|(&c, &d)| d == 0 && (left_side.iter().chain(std::iter::once(&right_side)).any(|&s| s.chars().next() == Some(c)))) {
-            return None;
+    let mut leading: Vec<char> = vec![];
+    let first: Vec<&str> = x.next().unwrap().split_ascii_whitespace().collect();
+    let last = x.next().unwrap().trim();
+
+    if last.len() > 1 {
+        let c = last.chars().next().unwrap();
+        leading.push(c);
+    }
+
+    first.iter().for_each(|f| {
+        if f.len() > 1 {
+            let c = f.chars().next().unwrap();
+            leading.push(c);
         }
+    });
 
-        let left_sum: u64 = left_side
+    let mut end_map: HashMap<char, u8> = HashMap::new();
+    for perm in (0..10)
+        .collect::<std::vec::Vec<u8>>()
+        .iter()
+        .permutations(input_map.len())
+        .unique()
+    {
+        if input_map
             .iter()
-            .map(|s| s.chars().fold(0, |acc, c| acc * 10 + mapping[&c] as u64))
-            .sum();
-
-        let right_value: u64 = right_side
-            .chars()
-            .fold(0, |acc, c| acc * 10 + mapping[&c] as u64);
-
-        if left_sum == right_value {
-            return Some(mapping);
+            .zip(perm.iter())
+            .any(|(ch, digit)| leading.contains(ch.0) && **digit == 0)
+        {
+            continue; // skip this entire permutation
         }
-    } else {
-        for i in start..digits.len() {
-            digits.swap(i, start);
-            if let Some(solution) = permute(digits, start + 1, letters, left_side, right_side) {
-                return Some(solution);
-            }
-            digits.swap(i, start);
+
+        // safe to insert now
+        for (ch, digit) in input_map.iter().zip(perm.iter()) {
+            end_map.insert(*ch.0, **digit);
+        }
+
+        let left: Vec<u64> = first
+            .iter()
+            .map(|str| str_to_u64(str, &end_map))
+            .collect::<Vec<_>>();
+        let left_sum: u64 = left.iter().sum();
+
+        let right: u64 = str_to_u64(last, &end_map);
+
+        if left_sum == right {
+            return Some(end_map);
         }
     }
+
     None
+}
+
+fn str_to_u64(str: &str, map: &HashMap<char, u8>) -> u64 {
+    str.chars()
+        .map(|f| map.get(&f).unwrap_or(&0))
+        .fold(0, |acc, digit| acc * 10 + (*digit as u64))
 }
