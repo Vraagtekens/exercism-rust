@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub fn solve(input: &str) -> Option<HashMap<char, u8>> {
     let input_map = input
@@ -26,6 +26,17 @@ pub fn solve(input: &str) -> Option<HashMap<char, u8>> {
             leading.push(c);
         }
     });
+
+    // println!("{:?}", leading);
+    // println!("{:?}", first);
+    // println!("{:?}", last);
+    // println!("{:?}", input_map.len());
+    let mut used = [false; 10];
+    let mut current = vec![];
+
+    generate(&mut current, &mut used, input_map.len());
+
+    return None;
 
     let mut end_map: HashMap<char, u8> = HashMap::new();
     for perm in (0..10)
@@ -67,4 +78,25 @@ fn str_to_u64(str: &str, map: &HashMap<char, u8>) -> u64 {
     str.chars()
         .map(|f| map.get(&f).unwrap_or(&0))
         .fold(0, |acc, digit| acc * 10 + (*digit as u64))
+}
+
+fn generate(current: &mut Vec<u8>, used: &mut [bool; 10], depth: usize) {
+    if current.len() == depth {
+        println!("{:?}", current);
+        return;
+    }
+
+    for digit in 0..10 {
+        if used[digit] {
+            continue;
+        }
+
+        used[digit] = true;
+        current.push(digit.try_into().unwrap());
+
+        generate(current, used, depth);
+
+        current.pop(); // backtrack
+        used[digit] = false; // mark as unused
+    }
 }
