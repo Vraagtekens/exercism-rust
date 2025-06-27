@@ -1,18 +1,28 @@
-// the PhantomData instances in this file are just to stop compiler complaints
-// about missing generics; feel free to remove them
-
-use std::fmt::Display;
+use std::cmp::PartialEq;
+use std::ops::Rem;
+use std::vec;
 
 /// A Matcher is a single rule of fizzbuzz: given a function on T, should
 /// a word be substituted in? If yes, which word?
-pub struct Matcher<T>(std::marker::PhantomData<T>);
+pub struct Matcher<T> {
+    predicate: Box<dyn Fn(T) -> bool>,
+    substitution: String,
+}
 
 impl<T> Matcher<T> {
-    pub fn new<F, S>(_matcher: F, _subs: S) -> Matcher<T> {
-        todo!()
+    pub fn new<F, S>(matcher: F, subs: S) -> Matcher<T>
+    where
+        F: Fn(T) -> bool + 'static,
+        S: Into<String>,
+    {
+        Matcher {
+            predicate: Box::new(matcher),
+            substitution: subs.into(),
+        }
     }
 }
 
+/// A Fizzy is a set of matchers, which may be applied to an iterator.
 ///
 /// Strictly speaking, it's usually more idiomatic to use `iter.map()` than to
 /// consume an iterator with an `apply` method. Given a Fizzy instance, it's
@@ -21,41 +31,53 @@ impl<T> Matcher<T> {
 /// here because it's a simpler interface for students to implement.
 ///
 /// Also, it's a good excuse to try out using impl trait.
-pub struct Fizzy<T>(std::marker::PhantomData<T>);
+pub struct Fizzy<T> {
+    matchers: Vec<Matcher<T>>,
+}
 
-impl<T> Fizzy<T> {
+impl<T> Fizzy<T>
+where
+    T: Copy + ToString,
+{
     pub fn new() -> Self {
-        return Self(std::marker::PhantomData);
+        Fizzy { matchers: vec![] }
     }
 
     // feel free to change the signature to `mut self` if you like
     #[must_use]
-    pub fn add_matcher(self, _matcher: Matcher<T>) -> Self {
-        todo!()
+    pub fn add_matcher(mut self, matcher: Matcher<T>) -> Self {
+        self.matchers.push(matcher);
+        self
     }
 
+    /// map this fizzy onto every element of an iterator, returning a new iterator
     pub fn apply<I>(self, iter: I) -> impl Iterator<Item = String>
     where
-        I: Iterator,
-        I::Item: Into<i32> + Display + Copy,
+        I: IntoIterator<Item = T>,
     {
-        iter.map(|x| {
-            let num: i32 = x.into();
+        iter.into_iter().map(move |item| {
+            let result = self
+                .matchers
+                .iter()
+                .filter(|m| (m.predicate)(item))
+                .map(|m| m.substitution.clone())
+                .collect::<String>();
 
-            if num % 3 == 0 && num % 5 == 0 {
-                "fizzbuzz".to_string()
-            } else if num % 3 == 0 {
-                "fizz".to_string()
-            } else if num % 5 == 0 {
-                "buzz".to_string()
+            if result.is_empty() {
+                item.to_string()
             } else {
-                x.to_string()
+                result
             }
         })
     }
 }
 
 /// convenience function: return a Fizzy which applies the standard fizz-buzz rules
-pub fn fizz_buzz<T>() -> Fizzy<T> {
+pub fn fizz_buzz<T>() -> Fizzy<T>
+where
+    T: Rem<Output = T> + PartialEq + From<u8> + Copy + ToString + 'static, //always a number
+{
     Fizzy::new()
+        .add_matcher(Matcher::new(|n: T| n % T::from(3) == T::from(0), "fizz"))
+        .add_matcher(Matcher::new(|n: T| n % T::from(5) == T::from(0), "buzz"))
 }
