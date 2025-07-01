@@ -7,15 +7,15 @@ pub enum Error {
 }
 
 pub struct BowlingGame {
-    frames: BTreeMap<usize, (u16, u16)>,
+    frames: BTreeMap<usize, Vec<u16>>,
     current_frame: usize,
 }
 
 impl BowlingGame {
     pub fn new() -> Self {
         BowlingGame {
+            current_frame: 1,
             frames: BTreeMap::new(),
-            current_frame: 0,
         }
     }
 
@@ -24,73 +24,85 @@ impl BowlingGame {
             return Err(Error::NotEnoughPinsLeft);
         }
 
-        let end = self.frames.get(&9);
+        if let Some(frame10) = self.frames.get(&10) {
+            if frame10.iter().sum::<u16>() != 10 && frame10.len() == 2 {
+                return Err(Error::GameComplete);
+            }
 
-        if let Some(e) = end {
-            if self.current_frame == 10 {
-                if e.0 + e.1 != 10 {
+            let frame11 = self.frames.get(&11).map_or(0, |v| v.len());
+
+            let x = frame10.first().unwrap();
+            if x == &10 {
+                // strike
+                if frame11 == 2 {
                     return Err(Error::GameComplete);
                 }
-
-                if self.frames.contains_key(&10) && e.0 != 10 {
+            } else {
+                // spare
+                if frame11 == 1 {
                     return Err(Error::GameComplete);
                 }
             }
         }
 
         let result = self.frames.get(&self.current_frame);
-
-        // println!("{:?}", result);
-
-        match result {
-            Some(y) => {
-                if y.0 == 10 {
-                    self.frames.insert(self.current_frame + 1, (pins, 0));
-                } else {
-                    self.frames
-                        .entry(self.current_frame)
-                        .and_modify(|v| v.1 = pins)
-                        .or_insert((pins, 0));
-                }
-
+        if let Some(y) = result {
+            let sum: u16 = y.iter().sum();
+            if sum == 10 || y.len() == 2 {
                 self.current_frame += 1;
-            }
-            None => {
-                self.frames.insert(self.current_frame, (pins, 0));
             }
         }
 
-        // println!("{:?}", self.frames);
+        self.frames
+            .entry(self.current_frame)
+            .or_default()
+            .push(pins);
+
+        let x = self.frames.get(&self.current_frame).unwrap();
+        if x.iter().sum::<u16>() > 10 {
+            return Err(Error::NotEnoughPinsLeft);
+        }
 
         Ok(())
     }
 
     pub fn score(&self) -> Option<u16> {
-        // todo!("Return the score if the game is complete, or None if not.");
-
         if self.frames.is_empty() || self.frames.len() < 10 {
             return None;
         }
 
+        self.count()
+    }
+
+    fn count(&self) -> Option<u16> {
         let mut sum: u16 = 0;
-        for c in self.frames.iter() {
-            if *c.0 == 10 {
-                continue;
+
+        for (index, frame) in self.frames.iter() {
+            if index == &11 {
+                break;
             }
 
-            if c.1.0 == 10 {
-                let first = self.frames.get(&(c.0 + 1)).unwrap_or(&(0, 0));
+            let points: u16 = frame.iter().sum();
 
-                sum += c.1.0 + first.0 + first.1;
-            } else if c.1.0 + c.1.1 == 10 {
-                let first = self.frames.get(&(c.0 + 1)).unwrap_or(&(0, 0));
+            if points == 10 {
+                let next = self.frames.get(&(index + 1))?;
 
-                sum += c.1.0 + c.1.1 + first.0;
-            } else {
-                sum += c.1.0 + c.1.1
+                if 10 == *frame.first()? {
+                    // Strike
+                    if 10 == *next.first()? {
+                        let next2 = self.frames.get(&(index + 2))?;
+
+                        sum += next.first()? + next2.first()?;
+                    } else {
+                        sum += next.iter().sum::<u16>();
+                    }
+                } else {
+                    // Spare
+                    sum += next.first()?;
+                }
             }
 
-            println!("{:?}", sum);
+            sum += points;
         }
 
         Some(sum)
