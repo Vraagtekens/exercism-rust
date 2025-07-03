@@ -1,7 +1,6 @@
 pub mod graph {
-    use std::collections::HashMap;
-
     use crate::graph::graph_items::{edge::Edge, node::Node};
+    use std::collections::HashMap;
 
     pub mod graph_items {
         pub mod edge {
@@ -16,7 +15,7 @@ pub mod graph {
             impl Edge {
                 pub fn new(start: &str, end: &str) -> Self {
                     Edge {
-                        name: format!("{} -- {}", start, end),
+                        name: format!("{start} -- {end}"),
                         attrs: HashMap::new(),
                     }
                 }
@@ -88,13 +87,13 @@ pub mod graph {
             self
         }
 
-        pub fn with_nodes(mut self, nodes: &Vec<Node>) -> Self {
-            self.nodes.extend(nodes.clone());
+        pub fn with_nodes(mut self, nodes: &[Node]) -> Self {
+            self.nodes.extend(nodes.to_owned());
             self
         }
 
-        pub fn with_edges(mut self, edges: &Vec<Edge>) -> Self {
-            self.edges.extend(edges.clone());
+        pub fn with_edges(mut self, edges: &[Edge]) -> Self {
+            self.edges.extend(edges.to_owned());
             self
         }
 
