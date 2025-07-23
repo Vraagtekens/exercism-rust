@@ -28,14 +28,11 @@ pub fn palindrome_products(min: u64, max: u64) -> Option<(Palindrome, Palindrome
         for y in x..=max {
             let product = Palindrome::new(x * y);
 
-            match product {
-                Some(x) => products_vec.push(x),
-                None => {}
+            if let Some(x) = product {
+                products_vec.push(x)
             }
         }
     }
-
-    println!("{:?}", products_vec);
 
     products_vec.sort();
     let first = products_vec.first();
