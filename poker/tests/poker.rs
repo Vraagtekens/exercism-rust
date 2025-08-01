@@ -5,7 +5,7 @@ use std::collections::HashSet;
 fn single_hand_always_wins() {
     let input = &["4S 5S 7H 8D JC"];
     let output = winning_hands(input).into_iter().collect::<HashSet<_>>();
-    let expected = ["4S 5S 7H 8D JC"].into_iter().collect::<HashSet<_>>();
+    let expected: HashSet<&'static str> = ["4S 5S 7H 8D JC"].into_iter().collect::<HashSet<_>>();
     assert_eq!(output, expected);
 }
 
