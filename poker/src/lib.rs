@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::collections::HashMap;
 
 /// Given a list of poker hands, return a list of those hands which win.
@@ -10,28 +11,32 @@ pub fn winning_hands<'a>(hands: &[&'a str]) -> Vec<&'a str> {
         return vec![x];
     }
 
-    let mut arr: Vec<&str> = vec![];
+    let mut list: Vec<(&str, PokerHand)> = hands
+        .iter()
+        .map(|&hand_str| {
+            let hand_type = get_poker_hand_type(hand_str);
+            let card_ranks = extract_sorted_ranks(hand_str);
+            let poker_hand = PokerHand {
+                hand_type,
+                card_ranks,
+            };
+            (hand_str, poker_hand)
+        })
+        .collect();
 
-    let mut list: Vec<PokerHand> = vec![];
-    for hand in hands {
-        let mut card_total: u32 = 0;
-        for card in hand.split_ascii_whitespace() {
-            card_total += get_card_value(card);
-        }
+    list.sort_by(|a, b| b.1.cmp(&a.1)); // sort strongest to weakest
 
-        let poker_hand_type = get_poker_hand_type(hand);
-        let poker_hand = PokerHand::new(poker_hand_type, card_total);
+    let best_score = list[0].1.clone();
+    let result: Vec<&str> = list
+        .into_iter()
+        .take_while(|(_, hand)| *hand == best_score)
+        .map(|(hand_str, _)| hand_str)
+        .collect();
 
-        list.push(poker_hand);
-    }
-
-    list.sort();
-    list.reverse();
-
-    arr
+    result
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 enum PokerHandType {
     HighCard,
     OnePair,
@@ -45,26 +50,17 @@ enum PokerHandType {
     FiveOfAKind,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 struct PokerHand {
     hand_type: PokerHandType, // compared first
-    total_value: u32,         // compared second
-}
-
-impl PokerHand {
-    fn new(hand_type: PokerHandType, total_value: u32) -> Self {
-        Self {
-            hand_type,
-            total_value,
-        }
-    }
+    card_ranks: Vec<u8>,      // descending order
 }
 
 fn get_card_value(card: &str) -> u32 {
     match card.chars().next() {
         Some(c) => match c {
             'A' => 14,
-            'H' => 13,
+            'K' => 13,
             'Q' => 12,
             'J' => 11,
             '1' => 10, // 10
@@ -98,6 +94,8 @@ fn get_poker_hand_type(hand: &str) -> PokerHandType {
     values.sort();
 
     let is_straight = values.len() == 5 && values.windows(2).all(|w| w[1] == w[0] + 1);
+    let is_ace_low_straight = values == vec![2, 3, 4, 5, 14];
+    let is_straight = is_straight || is_ace_low_straight;
 
     // Step 5: Match against rules, in order from highest to lowest
     let mut counts: Vec<u32> = frequencies.values().cloned().collect();
@@ -114,4 +112,48 @@ fn get_poker_hand_type(hand: &str) -> PokerHandType {
         (_, _, [1, 1, 1, 2]) => PokerHandType::OnePair,
         _ => PokerHandType::HighCard,
     }
+}
+
+impl Ord for PokerHand {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.hand_type
+            .cmp(&other.hand_type)
+            .then_with(|| self.card_ranks.cmp(&other.card_ranks))
+    }
+}
+
+impl PartialOrd for PokerHand {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+fn extract_sorted_ranks(hand: &str) -> Vec<u8> {
+    // Count frequencies of each rank
+    let mut freq_map: HashMap<u8, usize> = HashMap::new();
+    for card in hand.split_whitespace() {
+        let val = get_card_value(card) as u8;
+        *freq_map.entry(val).or_insert(0) += 1;
+    }
+
+    // Collect into a Vec<(rank, count)>
+    let mut counts: Vec<(u8, usize)> = freq_map.into_iter().collect();
+
+    // Sort primarily by count descending, then rank descending
+    counts.sort_by(|a, b| b.1.cmp(&a.1).then(b.0.cmp(&a.0)));
+
+    // Flatten into vector: repeat the rank count times
+    let mut sorted_ranks = Vec::new();
+    for (rank, count) in counts {
+        for _ in 0..count {
+            sorted_ranks.push(rank);
+        }
+    }
+
+    // Handle ace-low straight case (optional, if relevant for card ranks)
+    if sorted_ranks == vec![14, 5, 4, 3, 2] {
+        return vec![5, 4, 3, 2, 1];
+    }
+
+    sorted_ranks
 }
